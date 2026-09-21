@@ -1,33 +1,20 @@
-async function sendMessage() {
-    let input = document.getElementById("input").value;
-    if (!input.trim()) return;
+import axios from "axios";
+import { BACKEND_URL } from "./config";
 
-    let messages = document.getElementById("messages");
+export async function sendMessage() {
+    const inputElement = document.getElementById("input");
+    const input = inputElement.value.trim();
+    if (!input) return;
+
+    const messages = document.getElementById("messages");
     messages.innerHTML += `<div class="message user">${input}</div>`;
-    document.getElementById("input").value = "";
+    inputElement.value = "";
 
     try {
-        // Call Laravel proxy route
-        let response = await fetch("/chatbot/query", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ question: input })
-        });
+        const response = await axios.post(`${BACKEND_URL}/query`, { question: input });
 
-        // Safe JSON parsing
-        let data;
-        try {
-            data = await response.json();
-        } catch (parseError) {
-            console.error("Parse error:", parseError);
-            messages.innerHTML += `<div class="message bot">Information unavailable</div>`;
-            return;
-        }
-
-        // ✅ Ensure fallback if answer is missing or empty
-        let answerText = (data.answer && data.answer.trim() !== "")
-            ? data.answer
-            : "Information unavailable";
+        const answerText =
+            response.data?.answer?.trim() !== "" ? response.data.answer : "Information unavailable";
 
         messages.innerHTML += `<div class="message bot">${answerText}</div>`;
     } catch (error) {
@@ -35,5 +22,3 @@ async function sendMessage() {
         messages.innerHTML += `<div class="message bot">Information unavailable</div>`;
     }
 }
-
-
