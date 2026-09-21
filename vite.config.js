@@ -8,6 +8,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        outDir: 'public/build',   // 👈 tell Vite to output here
+        emptyOutDir: true,        // clears old files before building
+    },
     server: {
         host: 'localhost',
         port: 5173,
